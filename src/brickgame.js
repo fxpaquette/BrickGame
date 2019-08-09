@@ -25,7 +25,7 @@ let ballStartX= effectiveW*0.5
 let ballStartY= effectiveH*0.90
 let ballRadius = brickWidth/4;
 
-let barSpeed = 6;
+let barSpeed = 10;
 
 /*Function to generate random color*/
 function randomColor(){
@@ -43,9 +43,9 @@ class Ball{
         this.color = randomColor();
         this.radius = ballRadius;
         this.x= ballStartX;
-        this.y= ballStartY;
-        this.dx=2;
-        this.dy=2;
+        this.y= ballStartY*0.90;
+        this.dx=0;
+        this.dy=6;
     }
     update(){
         ctx.beginPath();
@@ -74,7 +74,7 @@ class Brick{
 
 /*Class representing the bar*/
 class Bar{
-    constructor(x,y){
+    constructor(){
         this.color = randomColor();
         this.width = brickWidth*2;
         this.height = brickHeight*0.5;
@@ -105,16 +105,8 @@ function initialize(){
         }
     }    
 }
-let myBall = new Ball();
-let myBar = new Bar();
-let vecBricks = [];
-for(let i=0;i<nBricksW;i++){
-    let pos_x = xOffset + i*(brickWidth+(spacing*effectiveW));
-    for(let j = 0;j<nBricksH;j++){
-        let pos_y = yOffset + j*(brickHeight+(spacing*effectiveH))
-        vecBricks.push(new Brick(pos_x,pos_y));
-    }
-}
+
+gameOver = true;
 
 /*Main animation function */
 function draw(){
@@ -124,6 +116,11 @@ function draw(){
         canva.width = effectiveW;
         canva.height = effectiveH;
     }
+    if(gameOver){
+        initialize();
+        gameOver = false;
+    }
+
     window.requestAnimationFrame(draw); //Execute draw before refresh
     
     //---Update frame start---
@@ -162,24 +159,27 @@ function draw(){
     if ((myBall.y - myBall.radius <= 0)){
         myBall.dy = -myBall.dy*inertie;
         myBall.y = myBall.radius;
-    }else if ((myBall.y+myBall.radius>= effectiveH)){
-        myBall.dy = -myBall.dy*inertie;
+    }else if ((myBall.y+myBall.radius>= effectiveH)){ //Touches bottom, game over!
+        myBall.dy = 0
         myBall.y = effectiveH - myBall.radius;
+        gameOver = true;
+        //alert("Game over");
     }
     //---Compute collisions with 4 sides end---
 
     //---Compute collsion with bar start---
     if ((myBall.y+myBall.radius>=myBar.y) && (myBall.x>=myBar.x) && (myBall.x<=myBar.x+myBar.width)){
         myBall.dy = -myBall.dy*inertie;
+        let orientation = myBall.x - (myBar.x+(myBar.width)/2)
+        myBall.dx = 0.5*(myBall.dx + 0.1*orientation); 
+        //console.log(myBall.dx);
         myBall.y = myBar.y - myBall.radius;
     }  
-    //To do: angles
+
     //---Compute collsion with bar end---
 
 
     //---Compute collisions with bricks start---
-
-
     let to_remove = [];
     let ball_right = myBall.x+myBall.radius;
     let ball_left = myBall.x-myBall.radius;
@@ -191,35 +191,45 @@ function draw(){
         let y1 = brick.y; //     ""
         let x2 = x1+brick.width; //Right lower corner of brick
         let y2 = y1+brick.height; //       ""
-        let audio = new Audio('../bin/sounds/97792__cgeffex__metal-impact.wav');
-        audio.playbackRate = 3;
         //Hit bottom of brick
         if (ball_up>=y1 && ball_up<=y2 && myBall.x>=x1 && myBall.x<=x2){
+            let audio = new Audio('../bin/sounds/97792__cgeffex__metal-impact.wav');
+            audio.playbackRate = 3;
+            audio.play();
             myBall.dy = -myBall.dy;
             myBall.y = y2+myBall.radius;
             to_remove.push(i);
-            audio.play();
+            break;
         }
         //Hit top of brick
         else if(ball_down>=y1 && ball_down<=y2 && myBall.x>=x1 && myBall.x<=x2){
+            let audio = new Audio('../bin/sounds/97792__cgeffex__metal-impact.wav');
+            audio.playbackRate = 3;
+            audio.play();
             myBall.dy = -myBall.dy;
             myBall.y = y1-myBall.radius;
             to_remove.push(i);
-            audio.play();
+            break;
         }
         //Hit left of brick
         else if(myBall.y>=y1 && myBall.y<=y2 && ball_right>=x1 && ball_right<=x2){
+            let audio = new Audio('../bin/sounds/97792__cgeffex__metal-impact.wav');
+            audio.playbackRate = 3;
+            audio.play();
             myBall.dx = -myBall.dx;
             myBall.x = x1-myBall.radius;
             to_remove.push(i);
-            audio.play();
+            break;
         }
         //Hit right of brick
         else if(myBall.y>=y1 && myBall.y<=y2 && ball_left>=x1 && ball_left<=x2){
+            let audio = new Audio('../bin/sounds/97792__cgeffex__metal-impact.wav');
+            audio.playbackRate = 3;
+            audio.play();
             myBall.dx = -myBall.dx;
             myBall.x = x2+myBall.radius;
             to_remove.push(i);
-            audio.play();
+            break;
         }
     }
     for(let indice of to_remove){
@@ -286,6 +296,7 @@ function keyReleased(event) {
     const key = event.key;
     if (key == 'ArrowLeft' || key=='ArrowRight'){
         myBar.dx = 0;
+        console.log("gfgfjdjj")
     }
 }
 
