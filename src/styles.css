@@ -1,0 +1,13 @@
+body{
+    width:  100%;
+    height: 100%;
+    margin: 0;
+    background-image: linear-gradient(to right, rgb(22, 61, 236), rgb(23, 219, 245));
+  }
+
+  #myCanvas{
+    background-image: linear-gradient(to right, rgb(89, 206, 53), rgb(23, 245, 171));
+    overflow: hidden;
+    margin: 0;
+    display: block;
+}
